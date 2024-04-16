@@ -1,0 +1,38 @@
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+*.dll
+*.pdb
+*.cache
+project.lock.json
+
+bin/
+obj/
+
+# Compiled output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+appsettings.Development.json
+appsettings.Production.json
+
+# Other files
+.DS_Store
+Thumbs.db
+
+
+.vscode
