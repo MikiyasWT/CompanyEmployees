@@ -1,7 +1,10 @@
-
 using Contracts;
 using LoggerService;
+using Microsoft.EntityFrameworkCore;
 
+
+namespace CompanyEmployees.Extensions 
+{
 public static class ServiceExtensions
 {
 
@@ -30,4 +33,16 @@ public static class ServiceExtensions
     {
         services.AddSingleton<ILoggerManager, LoggerManager>();
     }
+
+    public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<RepositoryContext>(opts =>
+                  opts.UseSqlServer(configuration.GetConnectionString("sqlConnection"), 
+                  b => b.MigrationsAssembly("CompanyEmployees")));
+
+    }
+
+
+}
+
 }

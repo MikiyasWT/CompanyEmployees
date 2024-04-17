@@ -16,7 +16,7 @@ public class WeatherForecastController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
+    [HttpGet]
     public IEnumerable<string> Get()
         {
             _logger.LogInfo("Here is info message from the controller.");

@@ -109,3 +109,30 @@
 2024-04-17 12:38:23.0452 Debug FileTarget(Name=logfile): Preparing for new file: '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
 2024-04-17 12:38:23.0467 Debug FileTarget(Name=logfile): Creating file appender: '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
 2024-04-17 12:38:23.0472 Trace FileTarget(Name=logfile): Opening /Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt with allowFileSharedWriting=False
+2024-04-17 12:53:38.2818 Debug FileTarget(Name=logfile): Recreating FileStream because no longer File.Exists: '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
+2024-04-17 12:53:38.2830 Trace FileTarget: Closing '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
+2024-04-17 12:53:38.2830 Trace FileTarget(Name=logfile): Opening /Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt with allowFileSharedWriting=False
+2024-04-17 12:53:38.2847 Debug FileTarget(Name=logfile): DirectoryNotFoundException - Attempting to create directory for FileName: /Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt
+2024-04-17 13:39:07.8100 Info AppDomain Shutting down. LogFactory closing...
+2024-04-17 13:39:07.8124 Debug Stop watching file-filter 'nlog.config' in directory: /Users/techethio/Documents/CompanyEmployees/CompanyEmployees/bin/Debug/net7.0
+2024-04-17 13:39:07.8130 Debug Targets not configured for Logger: Program
+2024-04-17 13:39:07.8130 Debug Targets not configured for Logger: LoggerService.LoggerManager
+2024-04-17 13:39:07.8130 Debug Closing logging configuration...
+2024-04-17 13:39:07.8130 Trace Closing FileTarget(Name=logfile)
+2024-04-17 13:39:07.8136 Debug FileTarget(Name=logfile): Closing...
+2024-04-17 13:39:07.8136 Trace FileTarget(Name=logfile): FinalizeFile '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt, isArchiving: False'
+2024-04-17 13:39:07.8156 Debug FileTarget(Name=logfile): FileAppender Invalidate Closing File: '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
+2024-04-17 13:39:07.8156 Trace FileTarget: Closing '/Users/techethio/Documents/CompanyEmployees/logs/2024-04-17_logfile.txt'
+2024-04-17 13:39:07.8167 Debug FileTarget(Name=logfile): Closed.
+2024-04-17 13:39:07.8167 Trace Closing /Users/techethio/Documents/CompanyEmployees/logs/${shortdate}_logfile.txt
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${literal}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${shortdate}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${literal}
+2024-04-17 13:39:07.8177 Trace Closing ${longdate} ${level:uppercase=true} ${message}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${longdate}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${literal}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${level}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${literal}
+2024-04-17 13:39:07.8177 Trace Closing Layout Renderer: ${message}
+2024-04-17 13:39:07.8177 Debug Finished closing logging configuration.
+2024-04-17 13:39:07.8177 Info LogFactory has been closed.
