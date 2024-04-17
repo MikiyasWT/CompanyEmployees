@@ -1,9 +1,11 @@
-using Microsoft.Extensions.Options;
+
+using Contracts;
+using LoggerService;
 
 public static class ServiceExtensions
 {
 
-public static void ConfigureCors(this IServiceCollection services)
+    public static void ConfigureCors(this IServiceCollection services)
     {
         services.AddCors(options =>
         {
@@ -16,9 +18,16 @@ public static void ConfigureCors(this IServiceCollection services)
         });
     }
 
-    public static void ConfigureIISIntegration(this IServiceCollection services) {
-        services.Configure<IISOptions>(Options => {
+    public static void ConfigureIISIntegration(this IServiceCollection services)
+    {
+        services.Configure<IISOptions>(Options =>
+        {
 
         });
+    }
+
+    public static void ConfigureLoggerService(this IServiceCollection services)
+    {
+        services.AddSingleton<ILoggerManager, LoggerManager>();
     }
 }

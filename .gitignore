@@ -403,3 +403,5 @@ Thumbs.db
 
 
 .vscode
+
+logs/*.txt

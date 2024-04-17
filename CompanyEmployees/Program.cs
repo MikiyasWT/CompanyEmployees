@@ -1,39 +1,25 @@
 using Microsoft.AspNetCore.HttpOverrides;
+using NLog;
+
 
 var builder = WebApplication.CreateBuilder(args);
+LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureCors();
-builder.Services.ConfigureIISIntegration();
+//builder.Services.ConfigureIISIntegration();
+builder.Services.ConfigureLoggerService();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
 
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 else
 {
@@ -54,4 +40,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
 
