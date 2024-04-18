@@ -1,5 +1,4 @@
-﻿using Entities.Configuration;
-using Entities.Models;
+﻿using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Entities
@@ -10,7 +9,6 @@ namespace Entities
         : base(options)
         {
         }
-
         public DbSet<Company> Companies { get; set; }
         public DbSet<Employee> Employees { get; set; }
     }

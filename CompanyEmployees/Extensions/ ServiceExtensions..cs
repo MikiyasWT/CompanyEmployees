@@ -1,48 +1,52 @@
 using Contracts;
 using LoggerService;
+using Entities;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-
-namespace CompanyEmployees.Extensions 
+namespace CompanyEmployees.Extensions
 {
-public static class ServiceExtensions
-{
-
-    public static void ConfigureCors(this IServiceCollection services)
+    public static class ServiceExtensions
     {
-        services.AddCors(options =>
+
+        public static void ConfigureCors(this IServiceCollection services)
         {
-            options.AddPolicy("CorsPolicy", builder =>
+            services.AddCors(options =>
             {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
             });
-        });
-    }
+        }
 
-    public static void ConfigureIISIntegration(this IServiceCollection services)
-    {
-        services.Configure<IISOptions>(Options =>
+        public static void ConfigureIISIntegration(this IServiceCollection services)
         {
+            services.Configure<IISOptions>(Options =>
+            {
 
-        });
+            });
+        }
+
+        public static void ConfigureLoggerService(this IServiceCollection services)
+        {
+            services.AddSingleton<ILoggerManager, LoggerManager>();
+        }
+
+        public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<RepositoryContext>(opts =>
+                      opts.UseSqlServer(configuration.GetConnectionString("sqlConnection"),
+                      b => b.MigrationsAssembly("CompanyEmployees")));
+
+        }
+
+
     }
-
-    public static void ConfigureLoggerService(this IServiceCollection services)
-    {
-        services.AddSingleton<ILoggerManager, LoggerManager>();
-    }
-
-    public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDbContext<RepositoryContext>(opts =>
-                  opts.UseSqlServer(configuration.GetConnectionString("sqlConnection"), 
-                  b => b.MigrationsAssembly("CompanyEmployees")));
-
-    }
-
 
 }
 
-}
