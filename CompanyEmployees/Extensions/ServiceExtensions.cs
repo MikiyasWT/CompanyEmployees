@@ -1,17 +1,13 @@
 using Contracts;
-using LoggerService;
 using Entities;
-using Microsoft.AspNetCore.Builder;
+using LoggerService;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Repository;
 
 namespace CompanyEmployees.Extensions
 {
     public static class ServiceExtensions
     {
-
         public static void ConfigureCors(this IServiceCollection services)
         {
             services.AddCors(options =>
@@ -46,13 +42,9 @@ namespace CompanyEmployees.Extensions
 
         }
 
-
-        public static void ConfigureRepositoryManager(this IServiceCollection services) {
-          services.AddScoped<IRepositoryManager, RepositoryManager>();
+        public static void ConfigureRepositoryManager(this IServiceCollection services)
+        {
+            services.AddScoped<IRepositoryManager, RepositoryManager>();
         }
-
-
     }
-
 }
-
