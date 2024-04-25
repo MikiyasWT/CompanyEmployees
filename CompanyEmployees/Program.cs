@@ -1,4 +1,6 @@
+using CompanyEmployees.CustomMiddleware;
 using CompanyEmployees.Extensions;
+using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
 
@@ -17,8 +19,13 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 var app = builder.Build();
+
+// var logger = app.Services.GetRequiredService<ILoggerManager>();
+// app.ConfigureExceptionHandler(logger);
+
 
 
 if (app.Environment.IsDevelopment())
@@ -45,7 +52,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
 app.MapControllers();
 
 app.Run();
+
+
 
