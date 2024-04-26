@@ -3,6 +3,8 @@ using CompanyEmployees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +22,15 @@ builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
+
+// for content negotiation between json and XML
+builder.Services.AddControllers( config => 
+{
+    // tells server to respect browser meida type selection
+    config.RespectBrowserAcceptHeader = true;
+    // to restrice media types to types only thre serve knows
+    config.ReturnHttpNotAcceptable = true;
+}).AddXmlDataContractSerializerFormatters();
 
 var app = builder.Build();
 
@@ -49,6 +60,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseRouting();
+
 
 app.UseAuthorization();
 
