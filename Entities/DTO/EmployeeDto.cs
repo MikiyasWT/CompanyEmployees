@@ -9,6 +9,6 @@ namespace Entities.Dto
         public string Name { get; set; }
 
         public int Age { get; set; }
-        public string FullAddress { get; set; }
+        public string Position { get; set; }
     }
 }
