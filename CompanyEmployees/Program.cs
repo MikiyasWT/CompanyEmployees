@@ -30,7 +30,8 @@ builder.Services.AddControllers( config =>
     config.RespectBrowserAcceptHeader = true;
     // to restrice media types to types only thre serve knows
     config.ReturnHttpNotAcceptable = true;
-}).AddXmlDataContractSerializerFormatters();
+}).AddXmlDataContractSerializerFormatters()
+  .AddCustomCSVFormatter();
 
 var app = builder.Build();
 
