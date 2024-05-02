@@ -1,9 +1,10 @@
 using AutoMapper;
+using CompanyEmployees.ModelBinders;
 using Contracts;
 using Entities.Dto;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Linq;
 namespace CompanyEmployees.Controllers
 {
     [Route("api/companies")]
@@ -49,6 +50,47 @@ namespace CompanyEmployees.Controllers
 
         }
 
+       [HttpGet("collection/({ids})", Name = "CompanyCollection")]
+        public IActionResult getCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        {
+           if(ids == null)
+           {
+            _logger.LogError("Parameter ids is null");
+            return BadRequest("Parameter ids is null");
+           }
+           var companyEntities = _repository.Company.GetByIds(ids, trackChanges:false);
+           
+           if(ids.Count() != companyEntities.Count())
+           {
+            _logger.LogError(" some ids are not valid");
+            return NotFound();
+           }
+
+           var companiesToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+           return Ok(companiesToReturn);
+        }
+
+       [HttpPost("collection")]
+       public IActionResult CreateCompanyCollection([FromBody]IEnumerable<CompanyForCreationDto> companyCollection)
+       {
+        if(companyCollection == null)
+        {
+              _logger.LogError("company collection sent from client is null");
+              return BadRequest("company collection is null");
+        }
+
+        var companyEntites = _mapper.Map<IEnumerable<Company>>(companyCollection);
+        foreach (var company in companyEntites)
+        {
+            _repository.Company.CreateCompany(company);
+        }
+
+        _repository.Save();
+
+        var companyCollectionToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntites);
+        var ids = string.Join(",", companyCollectionToReturn.Select(c => c.Id));
+        return CreatedAtRoute("CompanyCollection", new {ids}, companyCollectionToReturn);
+       }
 
         [HttpPost]
         public IActionResult CreateCompany([FromBody]CompanyForCreationDto company)
