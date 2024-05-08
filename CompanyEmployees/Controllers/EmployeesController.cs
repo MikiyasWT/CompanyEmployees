@@ -95,5 +95,27 @@ namespace CompanyEmployees.Controllers
 
             }
         }
+
+       [HttpDelete("{id}")]
+        public IActionResult DeleteEmployee(Guid companyId, Guid id)
+        {
+            var company = _repository.Company.GetCompany(companyId, trackChanges:false);
+            if(company == null)
+            {
+                _logger.LogError($"Company with company Id of {companyId}");
+                return NotFound();
+            }
+            var employeeForCompany = _repository.Employee.GetEmployee(companyId,id,trackChanges:false);
+            if(employeeForCompany == null){
+                _logger.LogError($"employee with  Id of {id}");
+                return NotFound();
+            }
+            _repository.Employee.DeleteEmployee(employeeForCompany);
+            _repository.Save();
+
+            return NoContent();
+
+
+        }
     }
 }
