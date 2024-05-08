@@ -108,5 +108,29 @@ namespace CompanyEmployees.Controllers
             return CreatedAtRoute("CompanyById", new { id = companyToReturn.Id }, companyToReturn);
 
         }
+
+
+        [HttpDelete("{companyId}")]
+        public IActionResult DeleteCompany(Guid companyId)
+        {
+          if(companyId ==  null)
+          {
+            _logger.LogError($"company Id is empty");
+            return BadRequest();
+          }
+
+          var companyToDelete = _repository.Company.GetCompany(companyId, trackChanges:false);
+          if(companyToDelete == null){
+            _logger.LogError($"company with Id:{companyId} is empty");
+            return NotFound();
+          }
+
+          _repository.Company.DeleteCompany(companyToDelete);
+          _repository.Save();
+
+          return NoContent();
+        }
     }
 }
+
+
