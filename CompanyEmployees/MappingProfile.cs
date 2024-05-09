@@ -26,7 +26,7 @@ namespace CompanyEmployees
             CreateMap<CompanyForUpdateDto, Company>();
 
             //for updating employee
-            CreateMap<EmployeeForUpdateDto, Employee>();
+            CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
 
 
         }
