@@ -130,6 +130,28 @@ namespace CompanyEmployees.Controllers
 
           return NoContent();
         }
+
+        [HttpPut("{companyId}")]
+        public IActionResult UpdateCompany(Guid companyId, [FromBody]CompanyForUpdateDto company)
+        {
+             if(companyId == null)
+             {
+                _logger.LogError($"company ID wasn't provided");
+                return BadRequest();
+             }
+             var companyToUpdate = _repository.Company.GetCompany(companyId, trackChanges:true);
+             if(companyToUpdate == null)
+             {
+                _logger.LogError($"there was no company with this ID:{companyId}");
+                return NotFound();
+             }
+             Console.Write(companyToUpdate);
+             _mapper.Map(company,companyToUpdate);
+             _repository.Save();
+
+             return NoContent();
+
+        }
     }
 }
 

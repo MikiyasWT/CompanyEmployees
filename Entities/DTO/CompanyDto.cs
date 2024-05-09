@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-using Entities.Models;
 
 namespace Entities.Dto
 {

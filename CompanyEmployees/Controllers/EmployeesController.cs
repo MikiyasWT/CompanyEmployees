@@ -117,5 +117,33 @@ namespace CompanyEmployees.Controllers
 
 
         }
+
+
+        [HttpPut("{employeeId}")]
+        public IActionResult UpdateEmployee(Guid companyId, Guid employeeId, [FromBody]EmployeeForUpdateDto employee)
+        {
+            if(employeeId == null)
+            {
+                _logger.LogError($"the employee Id was not provided");
+                return BadRequest();
+            }
+            var company = _repository.Company.GetCompany(companyId,trackChanges:true);
+            if(company == null)
+            {
+                _logger.LogInfo($"there is no company with this ID:{companyId}");
+                return NotFound();
+            }
+            var employeeToUpdate = _repository.Employee.GetEmployee(companyId, employeeId,trackChanges:true);
+            if(employeeToUpdate == null)
+            {
+                _logger.LogInfo($"there is no employee with this ID:{employeeId} that works for {company.Name}");
+                return NotFound();
+            }
+
+            _mapper.Map(employee, employeeToUpdate);
+            _repository.Save();
+
+            return NoContent();
+        }
     }
 }
