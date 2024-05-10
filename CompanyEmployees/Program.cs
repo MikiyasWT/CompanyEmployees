@@ -21,6 +21,10 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.Configure<ApiBehaviorOptions>(options => {
+    options.SuppressModelStateInvalidFilter = true;
+});
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // for content negotiation between json and XML

@@ -1,10 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Entities.Dto;
 
-public class EmployeeForUpdateDto
+public class EmployeeForUpdateDto : EmployeeForManipulationDto
 {
-    public string Name {get; set;}
-    public int Age {get; set;}
-
-    public string Position {get; set;}
 
 }

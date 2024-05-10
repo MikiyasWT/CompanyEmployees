@@ -59,7 +59,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateEmployee(Guid companyId, [FromBody]EmployeeForCreationDto employee)
+        public IActionResult CreateEmployeeForCompany(Guid companyId, [FromBody]EmployeeForCreationDto employee)
         {
             if (companyId == null)
             {
@@ -81,6 +81,10 @@ namespace CompanyEmployees.Controllers
                             _logger.LogError($"Employee  is null");
                             return BadRequest($"Employee information isnot provided");
                         }
+                    else if(!TryValidateModel(employee)){
+                            _logger.LogError($"invalid model state for the EmployeeForCreationDto object");
+                            return UnprocessableEntity(ModelState);
+                    }    
                     else
                         {
                             var employeeEntity = _mapper.Map<Employee>(employee);
@@ -128,12 +132,18 @@ namespace CompanyEmployees.Controllers
                 _logger.LogError($"the employee Id was not provided");
                 return BadRequest();
             }
+            if(!TryValidateModel(employee))
+            {
+                _logger.LogError($"invalid model state for the EmployeeForUpdateDto object");
+                return UnprocessableEntity(ModelState);
+            }  
             var company = _repository.Company.GetCompany(companyId,trackChanges:true);
             if(company == null)
             {
                 _logger.LogInfo($"there is no company with this ID:{companyId}");
                 return NotFound();
             }
+           
             var employeeToUpdate = _repository.Employee.GetEmployee(companyId, employeeId,trackChanges:true);
             if(employeeToUpdate == null)
             {
@@ -170,7 +180,15 @@ namespace CompanyEmployees.Controllers
 
           var employeeToPatch = _mapper.Map<EmployeeForUpdateDto>(employeeToUpdate);
 
-          patchDocument.ApplyTo(employeeToPatch);
+          patchDocument.ApplyTo(employeeToPatch, ModelState);
+
+          TryValidateModel(employeeToPatch);
+          
+          if(!ModelState.IsValid)
+          {
+                _logger.LogError($"invalid model state for patch document object");
+                return UnprocessableEntity(ModelState);
+          }
 
           _mapper.Map(employeeToPatch, employeeToUpdate);
 
