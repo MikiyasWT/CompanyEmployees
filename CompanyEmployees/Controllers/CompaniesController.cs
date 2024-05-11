@@ -1,4 +1,5 @@
 using AutoMapper;
+using CompanyEmployees.ActionFilters;
 using CompanyEmployees.ModelBinders;
 using Contracts;
 using Entities.Dto;
@@ -80,7 +81,6 @@ namespace CompanyEmployees.Controllers
             }
 
 
-
             var companyEntites = _mapper.Map<IEnumerable<Company>>(companyCollection);
             foreach (var company in companyEntites)
             {
@@ -95,19 +95,10 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
-            if (company == null)
-            {
-                _logger.LogError($"company detail sent from client is null");
-                return BadRequest("Company Detail is Null");
-            }
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the CompanyForCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
 
             var companyEntity = _mapper.Map<Company>(company);
             _repository.Company.CreateCompany(companyEntity);
@@ -120,20 +111,10 @@ namespace CompanyEmployees.Controllers
 
 
         [HttpDelete("{companyId}")]
+        [ServiceFilter(typeof(ValidateCompanyExistsAttribute))]
         public async Task<IActionResult> DeleteCompany(Guid companyId)
         {
-            if (companyId == null)
-            {
-                _logger.LogError($"company Id is empty");
-                return BadRequest();
-            }
-
-            var companyToDelete = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
-            if (companyToDelete == null)
-            {
-                _logger.LogError($"company with Id:{companyId} is empty");
-                return NotFound();
-            }
+            var companyToDelete = HttpContext.Items["company"] as Company;
 
             _repository.Company.DeleteCompany(companyToDelete);
             await _repository.SaveAsync();
@@ -142,26 +123,13 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpPut("{companyId}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidateCompanyExistsAttribute))]
         public async Task<IActionResult> UpdateCompany(Guid companyId, [FromBody] CompanyForUpdateDto company)
         {
-            if (companyId == null)
-            {
-                _logger.LogError($"company ID wasn't provided");
-                return BadRequest();
-            }
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the CompanyForCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
 
-            var companyToUpdate = await _repository.Company.GetCompanyAsync(companyId, trackChanges: true);
-            if (companyToUpdate == null)
-            {
-                _logger.LogError($"there was no company with this ID:{companyId}");
-                return NotFound();
-            }
+            var companyToUpdate = HttpContext.Items["company"] as Company;
             Console.Write(companyToUpdate);
             _mapper.Map(company, companyToUpdate);
             await _repository.SaveAsync();

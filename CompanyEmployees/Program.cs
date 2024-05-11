@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc;
+using CompanyEmployees.ActionFilters;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +22,13 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<ValidationFilterAttribute>();
+builder.Services.AddScoped<ValidateCompanyExistsAttribute>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.SuppressModelStateInvalidFilter = true;
 });
+//validation action filter
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // for content negotiation between json and XML
