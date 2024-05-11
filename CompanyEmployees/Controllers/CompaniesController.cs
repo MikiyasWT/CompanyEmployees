@@ -79,6 +79,8 @@ namespace CompanyEmployees.Controllers
                 return BadRequest("company collection is null");
             }
 
+
+
             var companyEntites = _mapper.Map<IEnumerable<Company>>(companyCollection);
             foreach (var company in companyEntites)
             {
@@ -100,6 +102,13 @@ namespace CompanyEmployees.Controllers
                 _logger.LogError($"company detail sent from client is null");
                 return BadRequest("Company Detail is Null");
             }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the CompanyForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
             var companyEntity = _mapper.Map<Company>(company);
             _repository.Company.CreateCompany(companyEntity);
             await _repository.SaveAsync();
@@ -140,6 +149,13 @@ namespace CompanyEmployees.Controllers
                 _logger.LogError($"company ID wasn't provided");
                 return BadRequest();
             }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the CompanyForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
             var companyToUpdate = await _repository.Company.GetCompanyAsync(companyId, trackChanges: true);
             if (companyToUpdate == null)
             {
