@@ -4,6 +4,7 @@ using CompanyEmployees.ActionFilters;
 using Contracts;
 using Entities.Dto;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployees(Guid companyId)
+        public async Task<IActionResult> GetEmployees(Guid companyId,[FromQuery]EmployeeParameters employeeParameters)
         {
             var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
             if (company == null)
@@ -34,7 +35,7 @@ namespace CompanyEmployees.Controllers
                 _logger.LogInfo($"there is no such company with this ID {companyId}");
                 return NotFound();
             }
-            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, trackChanges: false);
+            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
             return Ok(employeesDto);
 
