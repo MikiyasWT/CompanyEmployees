@@ -4,7 +4,9 @@ using Entities.RequestFeatures;
 namespace Contracts
 {
     public interface IEmployeeRepository {
-      Task<IEnumerable<Employee>>  GetEmployeesAsync(Guid companyId,EmployeeParameters employeeParameters, bool trackChanges);
+
+      Task<PagedList<Employee>>  GetEmployeesAsync(Guid companyId,EmployeeParameters employeeParameters, bool trackChanges);
+
       Task<Employee> GetEmployeeAsync(Guid companyId, Guid employeeId, bool trackChanges);
 
       void CreateEmployee(Guid companyId, Employee employee);
