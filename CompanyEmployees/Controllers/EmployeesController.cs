@@ -12,19 +12,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json; 
 
-// using System;
-// using System.Collections.Generic;
-// using System.Threading.Tasks;
-// using AutoMapper;
-// using CompanyEmployees.ActionFilters;
-// using CompanyEmployees.Utility;
-// using Contracts;
-// using Entities.DataTransferObjects;
-// using Entities.Models;
-// using Entities.RequestFeatures;
-// using Microsoft.AspNetCore.JsonPatch;
-// using Microsoft.AspNetCore.Mvc;
-// using Newtonsoft.Json;
 
 namespace CompanyEmployees.Controllers
 {
