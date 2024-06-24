@@ -1,6 +1,9 @@
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using CompanyEmployees.ActionFilters;
+using CompanyEmployees.Utility;
 using Contracts;
 using Entities.Dto;
 using Entities.Models;
@@ -8,6 +11,20 @@ using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json; 
+
+// using System;
+// using System.Collections.Generic;
+// using System.Threading.Tasks;
+// using AutoMapper;
+// using CompanyEmployees.ActionFilters;
+// using CompanyEmployees.Utility;
+// using Contracts;
+// using Entities.DataTransferObjects;
+// using Entities.Models;
+// using Entities.RequestFeatures;
+// using Microsoft.AspNetCore.JsonPatch;
+// using Microsoft.AspNetCore.Mvc;
+// using Newtonsoft.Json;
 
 namespace CompanyEmployees.Controllers
 {
@@ -17,17 +34,19 @@ namespace CompanyEmployees.Controllers
     {
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
-
         private readonly IMapper _mapper;
+        private readonly EmployeeLinks _employeeLinks;
 
-        public EmployeesController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public EmployeesController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper,  EmployeeLinks employeeLinks)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _employeeLinks = employeeLinks;
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployees(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             if(!employeeParameters.ValidateAgeRange)
@@ -45,7 +64,9 @@ namespace CompanyEmployees.Controllers
             
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(employeesFromDb.MetaData));
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
-            return Ok(employeesDto);
+            var links = _employeeLinks.TryGenerateLinks(employeesDto, employeeParameters.Fields, companyId, HttpContext);
+
+            return links.HasLinks ? Ok(links.LinkedEntities) : Ok(links.ShapedEntities);
 
         }
 

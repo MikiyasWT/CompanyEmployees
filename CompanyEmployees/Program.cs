@@ -6,6 +6,9 @@ using NLog;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc;
 using CompanyEmployees.ActionFilters;
+using CompanyEmployees.Utility;
+using Entities.Dto;
+using Repository.DataShaping;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +26,11 @@ builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ValidationFilterAttribute>();
+builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidateCompanyExistsAttribute>();
+builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+builder.Services.AddScoped<ValidateMediaTypeAttribute>();
+builder.Services.AddScoped<EmployeeLinks>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.SuppressModelStateInvalidFilter = true;
@@ -41,6 +48,8 @@ builder.Services.AddControllers( config =>
 }).AddNewtonsoftJson()
   .AddXmlDataContractSerializerFormatters()
   .AddCustomCSVFormatter();
+
+builder.Services.AddCustomMediaTypes();  
 
 var app = builder.Build();
 
