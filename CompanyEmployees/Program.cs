@@ -24,6 +24,7 @@ builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
+builder.Services.ConfigureApiVersioning();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidationFilterAttribute>();
