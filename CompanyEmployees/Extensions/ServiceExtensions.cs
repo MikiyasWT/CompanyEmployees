@@ -88,5 +88,10 @@ namespace CompanyEmployees.Extensions
                 }
             );
         }
+
+        public static void ConfigureResponseCache(this IServiceCollection services)
+        {
+             services.AddResponseCaching();
+        }
     }
 }

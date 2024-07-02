@@ -29,6 +29,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidateCompanyExistsAttribute>();
+builder.Services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
 builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<EmployeeLinks>();
@@ -46,6 +47,7 @@ builder.Services.AddControllers( config =>
     config.RespectBrowserAcceptHeader = true;
     // to restrice media types to types only thre serve knows
     config.ReturnHttpNotAcceptable = true;
+    config.CacheProfiles.Add("120SecondsDurationCache", new CacheProfile { Duration = 120 });
 }).AddNewtonsoftJson()
   .AddXmlDataContractSerializerFormatters()
   .AddCustomCSVFormatter();
@@ -78,7 +80,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.All
 });
-
+app.UseResponseCaching();
 app.UseRouting();
 
 
