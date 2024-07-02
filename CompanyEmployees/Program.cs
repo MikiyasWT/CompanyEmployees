@@ -25,8 +25,9 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureApiVersioning();
+builder.Services.ConfigureResponseCaching();
+builder.Services.ConfigureHttpCacheHeaders();
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidateCompanyExistsAttribute>();
 builder.Services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
@@ -81,6 +82,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.All
 });
 app.UseResponseCaching();
+app.UseHttpCacheHeaders();
 app.UseRouting();
 
 

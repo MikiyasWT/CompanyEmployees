@@ -5,13 +5,17 @@ using Contracts;
 using Entities.Dto;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
+using Marvin.Cache.Headers;
+
+
 namespace CompanyEmployees.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/companies")]
     [ApiController]
-    [ResponseCache(CacheProfileName = "120SecondsDurationCache")]
+    // [ResponseCache(CacheProfileName = "120SecondsDurationCache")]
     public class CompaniesController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -46,6 +50,8 @@ namespace CompanyEmployees.Controllers
 
         //api/companies/id
         [HttpGet("{id}", Name = "CompanyById")]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = false)]
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _repository.Company.GetCompanyAsync(id, trackChanges: false);
@@ -139,9 +145,8 @@ namespace CompanyEmployees.Controllers
         public async Task<IActionResult> UpdateCompany(Guid companyId, [FromBody] CompanyForUpdateDto company)
         {
 
-
+            Console.WriteLine(company);
             var companyToUpdate = HttpContext.Items["company"] as Company;
-            Console.Write(companyToUpdate);
             _mapper.Map(company, companyToUpdate);
             await _repository.SaveAsync();
 

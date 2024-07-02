@@ -6,6 +6,7 @@ using Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Marvin.Cache.Headers;
 
 namespace CompanyEmployees.Extensions
 {
@@ -89,9 +90,22 @@ namespace CompanyEmployees.Extensions
             );
         }
 
-        public static void ConfigureResponseCache(this IServiceCollection services)
+        public static void ConfigureResponseCaching(this IServiceCollection services)
         {
              services.AddResponseCaching();
         }
+
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders(
+                (expirationOpt) =>
+                {
+                    expirationOpt.MaxAge = 65;
+                    expirationOpt.CacheLocation = CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                });
+ 
     }
 }
