@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Marvin.Cache.Headers;
+using System.Threading.RateLimiting;
+using NLog.Targets.Wrappers;
+using AspNetCoreRateLimit;
 
 namespace CompanyEmployees.Extensions
 {
@@ -90,10 +93,7 @@ namespace CompanyEmployees.Extensions
             );
         }
 
-        public static void ConfigureResponseCaching(this IServiceCollection services)
-        {
-             services.AddResponseCaching();
-        }
+        public static void ConfigureResponseCaching(this IServiceCollection services) => services.AddResponseCaching();
 
         public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
             services.AddHttpCacheHeaders(
@@ -106,6 +106,28 @@ namespace CompanyEmployees.Extensions
                 {
                     validationOpt.MustRevalidate = true;
                 });
+
+        public static void ConfigureRateLimitingOptions(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit= 3,
+                    Period = "5m"
+                }
+            };
+
+            services.Configure<IpRateLimitOptions>(opt =>
+            {
+                opt.GeneralRules = rateLimitRules;
+            });
+
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        }         
  
     }
 }

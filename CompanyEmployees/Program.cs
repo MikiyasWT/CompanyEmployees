@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using CompanyEmployees.CustomMiddleware;
 using CompanyEmployees.Extensions;
 using Contracts;
@@ -9,6 +10,7 @@ using CompanyEmployees.ActionFilters;
 using CompanyEmployees.Utility;
 using Entities.Dto;
 using Repository.DataShaping;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,9 @@ builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<EmployeeLinks>();
 
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.ConfigureRateLimitingOptions();
+
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.SuppressModelStateInvalidFilter = true;
 });
@@ -55,6 +60,7 @@ builder.Services.AddControllers( config =>
 
 builder.Services.AddCustomMediaTypes();  
 
+
 var app = builder.Build();
 
 // var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -73,7 +79,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 
 //will forward proxy headers to the current request
