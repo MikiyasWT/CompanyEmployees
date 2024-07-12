@@ -40,6 +40,8 @@ builder.Services.AddScoped<EmployeeLinks>();
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.ConfigureRateLimitingOptions();
 
+builder.Services.ConfigureEmailServcie();
+
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 

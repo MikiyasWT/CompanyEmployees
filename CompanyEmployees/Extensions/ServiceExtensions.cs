@@ -12,6 +12,7 @@ using NLog.Targets.Wrappers;
 using AspNetCoreRateLimit;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using Services;
 
 namespace CompanyEmployees.Extensions
 {
@@ -145,7 +146,13 @@ namespace CompanyEmployees.Extensions
                 })
                 .AddEntityFrameworkStores<RepositoryContext>()
                 .AddDefaultTokenProviders();
-        }         
+        }   
+
+
+        public static void ConfigureEmailServcie(this IServiceCollection services)
+        {
+                  services.AddSingleton<EmailSenderService>();
+        }      
  
     }
 }
