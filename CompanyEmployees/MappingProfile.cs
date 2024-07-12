@@ -28,6 +28,9 @@ namespace CompanyEmployees
             //for updating employee
             CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
 
+            //map user for registration into User
+            CreateMap<UserForRegistrationDto, User>();
+
 
         }
     }

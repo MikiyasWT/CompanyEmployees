@@ -40,6 +40,9 @@ builder.Services.AddScoped<EmployeeLinks>();
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.ConfigureRateLimitingOptions();
 
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.SuppressModelStateInvalidFilter = true;
 });
@@ -91,7 +94,7 @@ app.UseResponseCaching();
 app.UseHttpCacheHeaders();
 app.UseRouting();
 
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
