@@ -13,6 +13,9 @@ using AspNetCoreRateLimit;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CompanyEmployees.Extensions
 {
@@ -88,7 +91,8 @@ namespace CompanyEmployees.Extensions
         public static void ConfigureApiVersioning(this IServiceCollection services)
         {
             services.AddApiVersioning(
-                options => {
+                options =>
+                {
                     options.ReportApiVersions = true;
                     options.AssumeDefaultVersionWhenUnspecified = true;
                     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -134,29 +138,69 @@ namespace CompanyEmployees.Extensions
 
         public static void ConfigureIdentity(this IServiceCollection services)
         {
-                var builder = services.AddIdentity<User, IdentityRole>( opt => 
-                {
-                   opt.Password.RequireDigit = true;
-                   opt.Password.RequireLowercase  = false;
-                   opt.Password.RequireUppercase = false;
-                   opt.Password.RequireNonAlphanumeric = false;
-                   opt.Password.RequiredLength = 8;
-                   opt.User.RequireUniqueEmail = true;
-                   opt.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
-                })
-                .AddEntityFrameworkStores<RepositoryContext>()
-                         .AddDefaultTokenProviders()
-                         .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
+            var builder = services.AddIdentity<User, IdentityRole>(opt =>
+            {
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 8;
+                opt.User.RequireUniqueEmail = true;
+                opt.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+            })
+            .AddEntityFrameworkStores<RepositoryContext>()
+                     .AddDefaultTokenProviders()
+                     .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
 
-                services.Configure<DataProtectionTokenProviderOptions>(options =>
-                    options.TokenLifespan = TimeSpan.FromMinutes(2));
-                        }   
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromMinutes(2));
+        }
 
 
         public static void ConfigureEmailServcie(this IServiceCollection services)
         {
-                  services.AddSingleton<EmailSenderService>();
-        }      
- 
+            services.AddSingleton<EmailSenderService>();
+        }
+
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            //var secretKey = Environment.GetEnvironmentVariable("SECRET");
+            var secretKey = Environment.ExpandEnvironmentVariables("%SECRET%");
+
+            Console.Write(secretKey);
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new ArgumentException("The JWT secret must be provided.");
+            }
+
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
+                    ValidAudience = jwtSettings.GetSection("validAudience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+
+                    ClockSkew = TimeSpan.Zero, // This ensures that the token expires exactly at the token's expiration time
+                    // Optionally, you can include the LifetimeValidator
+                    LifetimeValidator = (notBefore, expires, token, param) =>
+                    {
+                        return expires != null && expires > DateTime.UtcNow;
+                    }
+                };
+            });
+        }
+
     }
 }

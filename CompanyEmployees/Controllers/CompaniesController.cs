@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace CompanyEmployees.Controllers
@@ -38,6 +39,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ResponseCache(Duration = 60)]
         public async Task<IActionResult> GetCompanies()
         {
