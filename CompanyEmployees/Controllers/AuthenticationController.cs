@@ -32,7 +32,33 @@ public class AuthenticationController : ControllerBase
         _emailService = emailService;
     }
 
-    [HttpPost]
+    // [HttpPost]
+    // [ServiceFilter(typeof(ValidationFilterAttribute))]
+    // public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
+    // {
+    //     // map userForRegistration into User
+    //     var user = _mapper.Map<User>(userForRegistration);
+
+    //     var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+    //     if(!result.Succeeded)
+    //     {
+    //         foreach(var error in result.Errors)
+    //         {
+    //             ModelState.TryAddModelError(error.Code, error.Description);
+    //         }
+
+    //         return BadRequest(ModelState);
+    //     }
+
+    //     await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
+
+    //     //await _emailService.SendEmailAsync(emailDto.To, emailDto.Subject, emailDto.Body);
+    //     await _emailService.SendEmailAsync(userForRegistration.Email, "verify your email", "please verify your godamn email");
+    //     return StatusCode(201);
+    // }
+
+
+    [HttpPost("register")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
     {
@@ -52,9 +78,34 @@ public class AuthenticationController : ControllerBase
 
         await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
 
-        //await _emailService.SendEmailAsync(emailDto.To, emailDto.Subject, emailDto.Body);
-        await _emailService.SendEmailAsync(userForRegistration.Email, "verify your email", "please verify your godamn email");
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
+
+        var message = $"Please confirm your account by clicking this link: {confirmationLink}";
+        await _emailService.SendEmailAsync(userForRegistration.Email, "Email Confirmation", message);
+
         return StatusCode(201);
+    }
+
+
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery]string token, [FromQuery]string email)
+    {
+      var user = await _userManager.FindByEmailAsync(email);
+      if(user == null){
+          _logger.LogInfo($"No such user with this email: {email}");
+          return NotFound($"No user was found, Invalid Email");
+      }
+      var result = await _userManager.ConfirmEmailAsync(user, token);
+      if(!result.Succeeded)
+      {
+         _logger.LogInfo($"unable to verfiy email for user: {user.Email}");
+          return BadRequest($"Email verifcation failed for user: {user.Email}");
+      }
+
+      _logger.LogInfo($"User: {email} verifed successfully");
+      return Ok("Email confirmed successfully");
+
     }
 
 
@@ -105,7 +156,4 @@ public class AuthenticationController : ControllerBase
 
         return Ok("Password has been reset successfully.");
     }
-
-
-
 }
