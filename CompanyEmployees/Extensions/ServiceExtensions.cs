@@ -145,8 +145,12 @@ namespace CompanyEmployees.Extensions
                    opt.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
                 })
                 .AddEntityFrameworkStores<RepositoryContext>()
-                .AddDefaultTokenProviders();
-        }   
+                         .AddDefaultTokenProviders()
+                         .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
+
+                services.Configure<DataProtectionTokenProviderOptions>(options =>
+                    options.TokenLifespan = TimeSpan.FromMinutes(2));
+                        }   
 
 
         public static void ConfigureEmailServcie(this IServiceCollection services)
