@@ -23,13 +23,16 @@ public class AuthenticationController : ControllerBase
     private readonly UserManager<User> _userManager;
 
     private readonly EmailSenderService _emailService;
-    public AuthenticationController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, EmailSenderService emailService)
+
+    private readonly IServiceManager _service;
+    public AuthenticationController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, EmailSenderService emailService, IServiceManager service)
     {
         _repository = repository;
         _logger = logger;
         _mapper = mapper;
         _userManager = userManager;
         _emailService = emailService;
+        _service = service;
     }
 
     // [HttpPost]
@@ -62,10 +65,12 @@ public class AuthenticationController : ControllerBase
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
     {
+        
         // map userForRegistration into User
         var user = _mapper.Map<User>(userForRegistration);
 
-        var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+        var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
+        //  _userManager.CreateAsync(user, userForRegistration.Password);
         if(!result.Succeeded)
         {
             foreach(var error in result.Errors)
@@ -76,8 +81,6 @@ public class AuthenticationController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
-
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
 
@@ -85,6 +88,17 @@ public class AuthenticationController : ControllerBase
         await _emailService.SendEmailAsync(userForRegistration.Email, "Email Confirmation", message);
 
         return StatusCode(201);
+    }
+
+    [HttpPost("login")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> Login([FromBody]UserForAuthenticationDto userForAuthentication)
+    {
+        if(!await _service.AuthenticationService.ValidateUser(userForAuthentication))
+        {
+            return Unauthorized();
+        }
+        return Ok( new { Token = await _service.AuthenticationService.CreateToken()});
     }
 
 
