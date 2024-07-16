@@ -162,6 +162,9 @@ namespace CompanyEmployees.Extensions
             services.AddSingleton<EmailSenderService>();
         }
 
+    	public static void ConfigureServiceManager(this IServiceCollection services) =>
+		    services.AddScoped<IServiceManager, ServiceManager>();
+
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");

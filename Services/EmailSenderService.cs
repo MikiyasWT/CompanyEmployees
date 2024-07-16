@@ -1,7 +1,8 @@
 using System.Net;
 using System.Net.Mail;
+using Contracts;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+
 
 
 
@@ -9,11 +10,14 @@ namespace Services;
 
 public class EmailSenderService : IEmailSenderService
 {
+    private readonly ILoggerManager _logger;
     private readonly IConfiguration _configuration;
+    
 
-    public EmailSenderService(IConfiguration configuration)
+    public EmailSenderService(IConfiguration configuration, ILoggerManager logger)
     {
         _configuration = configuration;
+       _logger = logger;
     }
 
     public async Task SendEmailAsync(string email, string subject, string message)
@@ -38,11 +42,11 @@ public class EmailSenderService : IEmailSenderService
             mailMessage.To.Add(email);
 
             await smtpClient.SendMailAsync(mailMessage);
-            Console.WriteLine("Email sent successfully to {Email}", email);
+            _logger.LogInfo($"Email was sent successfully to {email}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failure sending mail to {email}: {ex.Message}");
+            _logger.LogInfo($"Failure sending mail to {email}: {ex.Message}");
 
         }
     }

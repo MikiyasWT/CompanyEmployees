@@ -24,18 +24,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureLoggerService();
+builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureApiVersioning();
 builder.Services.ConfigureResponseCaching();
 builder.Services.ConfigureHttpCacheHeaders();
-builder.Services.AddAutoMapper(typeof(Program));
+
+
+
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidateCompanyExistsAttribute>();
 builder.Services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
 builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<EmployeeLinks>();
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.ConfigureRateLimitingOptions();
