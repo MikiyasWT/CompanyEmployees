@@ -59,47 +59,63 @@ public class AuthenticationController : ControllerBase
     // }
 
 
-        [HttpPost("register")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> RegisterUser([FromBody]UserForRegistrationDto userForRegistration)
+    [HttpPost("register")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
+    {
+        if (!ModelState.IsValid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.TryAddModelError(error.Code, error.Description);
-                }
-
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByEmailAsync(userForRegistration.Email);
-
-            if (user == null)
-            {
-                return BadRequest("User not found after registration.");
-            }
-
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
-            await _service.EmailSenderService.SendEmailAsync(user.Email, "Confirm your email", $"Please confirm your account by clicking this link: {confirmationLink}");
-            return StatusCode(201);
+            return BadRequest(ModelState);
         }
+        var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        var user = await _userManager.FindByEmailAsync(userForRegistration.Email);
+
+        if (user == null)
+        {
+            return BadRequest("User not found after registration.");
+        }
+
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
+        await _service.EmailSenderService.SendEmailAsync(user.Email, "Confirm your email", $"Please confirm your account by clicking this link: {confirmationLink}");
+        return StatusCode(201);
+    }
 
 
     [HttpPost("login")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> Login([FromBody] UserForAuthenticationDto userForAuthentication)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+        if (user == null)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+        if (!user.EmailConfirmed)
+        {
+            return Unauthorized("Email not confirmed. Please confirm your email before logging in.");
+        }
+
         if (!await _service.AuthenticationService.ValidateUser(userForAuthentication))
         {
             return Unauthorized();
         }
+
+
         return Ok(new { Token = await _service.AuthenticationService.CreateToken() });
     }
 
