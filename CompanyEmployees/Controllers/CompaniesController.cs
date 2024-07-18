@@ -39,7 +39,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Manager")]
         [ResponseCache(Duration = 60)]
         public async Task<IActionResult> GetCompanies()
         {

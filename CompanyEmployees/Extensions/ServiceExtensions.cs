@@ -16,6 +16,7 @@ using Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using CompanyEmployees.Utility;
 
 namespace CompanyEmployees.Extensions
 {
@@ -147,13 +148,20 @@ namespace CompanyEmployees.Extensions
                 opt.Password.RequiredLength = 8;
                 opt.User.RequireUniqueEmail = true;
                 opt.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+                opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
+                opt.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<RepositoryContext>()
-                     .AddDefaultTokenProviders()
-                     .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
+            .AddDefaultTokenProviders()
+ .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation");
+            services.Configure<DataProtectionTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromHours(2));
+            services.Configure<EmailConfirmationTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromDays(3));
 
-            services.Configure<DataProtectionTokenProviderOptions>(options =>
-                options.TokenLifespan = TimeSpan.FromMinutes(2));
+
+
+
         }
 
 
@@ -162,8 +170,8 @@ namespace CompanyEmployees.Extensions
             services.AddSingleton<EmailSenderService>();
         }
 
-    	public static void ConfigureServiceManager(this IServiceCollection services) =>
-		    services.AddScoped<IServiceManager, ServiceManager>();
+        public static void ConfigureServiceManager(this IServiceCollection services) =>
+            services.AddScoped<IServiceManager, ServiceManager>();
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
