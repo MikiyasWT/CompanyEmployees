@@ -33,31 +33,6 @@ public class AuthenticationController : ControllerBase
         _service = service;
     }
 
-    // [HttpPost]
-    // [ServiceFilter(typeof(ValidationFilterAttribute))]
-    // public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
-    // {
-    //     // map userForRegistration into User
-    //     var user = _mapper.Map<User>(userForRegistration);
-
-    //     var result = await _userManager.CreateAsync(user, userForRegistration.Password);
-    //     if(!result.Succeeded)
-    //     {
-    //         foreach(var error in result.Errors)
-    //         {
-    //             ModelState.TryAddModelError(error.Code, error.Description);
-    //         }
-
-    //         return BadRequest(ModelState);
-    //     }
-
-    //     await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
-
-    //     //await _emailService.SendEmailAsync(emailDto.To, emailDto.Subject, emailDto.Body);
-    //     await _emailService.SendEmailAsync(userForRegistration.Email, "verify your email", "please verify your godamn email");
-    //     return StatusCode(201);
-    // }
-
 
     [HttpPost("register")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
@@ -92,32 +67,20 @@ public class AuthenticationController : ControllerBase
     }
 
 
-    [HttpPost("login")]
-    [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> Login([FromBody] UserForAuthenticationDto userForAuthentication)
-    {
-        if (!ModelState.IsValid)
+
+     [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto userForAuthentication)
         {
-            return BadRequest(ModelState);
-        }
-        var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
-        if (user == null)
+            if (!await _service.AuthenticationService.ValidateUser(userForAuthentication))
             {
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized();
             }
-        if (!user.EmailConfirmed)
-        {
-            return Unauthorized("Email not confirmed. Please confirm your email before logging in.");
+
+            var tokenDTO = await _service.AuthenticationService.CreateToken(populateExp: true);
+
+            return Ok(tokenDTO);
         }
-
-        if (!await _service.AuthenticationService.ValidateUser(userForAuthentication))
-        {
-            return Unauthorized();
-        }
-
-
-        return Ok(new { Token = await _service.AuthenticationService.CreateToken() });
-    }
 
 
     [HttpGet("confirm-email")]
