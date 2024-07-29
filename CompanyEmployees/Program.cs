@@ -4,7 +4,6 @@ using CompanyEmployees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc;
 using CompanyEmployees.ActionFilters;
 using CompanyEmployees.Utility;
@@ -19,6 +18,8 @@ var configuration = builder.Configuration;
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureCors();
@@ -49,15 +50,18 @@ builder.Services.ConfigureEmailServcie();
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(configuration);
+builder.Services.AddJwtConfiguration(configuration);
+//builder.Services.ConfigureJWT(configuration);
 
-builder.Services.Configure<ApiBehaviorOptions>(options => {
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
     options.SuppressModelStateInvalidFilter = true;
 });
 //validation action filter
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // for content negotiation between json and XML
-builder.Services.AddControllers( config => 
+builder.Services.AddControllers(config =>
 {
     // tells server to respect browser meida type selection
     config.RespectBrowserAcceptHeader = true;
@@ -68,7 +72,8 @@ builder.Services.AddControllers( config =>
   .AddXmlDataContractSerializerFormatters()
   .AddCustomCSVFormatter();
 
-builder.Services.AddCustomMediaTypes();  
+
+builder.Services.AddCustomMediaTypes();
 
 
 var app = builder.Build();

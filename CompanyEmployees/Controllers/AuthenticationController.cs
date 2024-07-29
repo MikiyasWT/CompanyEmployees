@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using CompanyEmployees.ActionFilters;
 using Contracts;
+using Entities.ConfigurationModels;
 using Entities.Dto;
 using Entities.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -23,7 +24,10 @@ public class AuthenticationController : ControllerBase
     private readonly EmailSenderService _emailService;
 
     private readonly IServiceManager _service;
-    public AuthenticationController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, EmailSenderService emailService, IServiceManager service)
+
+    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly IConfiguration _configuration;
+    public AuthenticationController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, EmailSenderService emailService, IServiceManager service, IConfiguration configuration)
     {
         _repository = repository;
         _logger = logger;
@@ -31,6 +35,12 @@ public class AuthenticationController : ControllerBase
         _userManager = userManager;
         _emailService = emailService;
         _service = service;
+        _configuration = configuration;
+        _jwtConfiguration = new JwtConfiguration();
+        _configuration.Bind(_jwtConfiguration.Section, _jwtConfiguration);
+
+
+
     }
 
 
@@ -68,19 +78,19 @@ public class AuthenticationController : ControllerBase
 
 
 
-     [HttpPost("login")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto userForAuthentication)
+    [HttpPost("login")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto userForAuthentication)
+    {
+        if (!await _service.AuthenticationService.ValidateUser(userForAuthentication))
         {
-            if (!await _service.AuthenticationService.ValidateUser(userForAuthentication))
-            {
-                return Unauthorized();
-            }
-
-            var tokenDTO = await _service.AuthenticationService.CreateToken(populateExp: true);
-
-            return Ok(tokenDTO);
+            return Unauthorized();
         }
+
+        var tokenDTO = await _service.AuthenticationService.CreateToken(populateExp: true);
+
+        return Ok(tokenDTO);
+    }
 
 
     [HttpGet("confirm-email")]
